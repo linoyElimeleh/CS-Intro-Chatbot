@@ -23,6 +23,7 @@ langchain-ollama = "*"
 beautifulsoup4 = "*"
 streamlit = "*"
 streamlit-chat = "*"
+pillow = "*"
 
 [dev-packages]
 

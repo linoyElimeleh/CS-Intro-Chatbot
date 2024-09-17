@@ -1,2 +1,8 @@
-python-dotenv~=1.0.1
-langchain~=0.3.0
+streamlit
+streamlit-chat
+langchain
+langchain-core
+langchain-community
+langchain-openai
+python-dotenv
+pinecone-client

@@ -9,7 +9,8 @@ from langchain_pinecone import PineconeVectorStore
 
 embeddings = OpenAIEmbeddings(model="text-embedding-3-small")
 
-#Trnslate the data into pinecone
+
+# Trnslate the data into pinecone
 # todo update it to read from goggle drive
 def ingest_docs():
     loader = ReadTheDocsLoader("langchain-docs/api.python.langchain.com/en/latest")
