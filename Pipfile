@@ -24,6 +24,7 @@ beautifulsoup4 = "*"
 streamlit = "*"
 streamlit-chat = "*"
 pillow = "*"
+python-pptx = "*"
 
 [dev-packages]
 
