@@ -2,6 +2,7 @@ from typing import Set
 from backend.core import run_llm
 import streamlit as st
 from streamlit_chat import message
+from header import render_header
 import hashlib
 
 # Dummy user database (replace with a real database in production)
@@ -10,13 +11,21 @@ USERS = {
     "user2@example.com": "password2",
 }
 
+
+def load_css():
+    with open("styles.css") as f:
+        st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
+
+
 def check_password(email, password):
     if email in USERS and USERS[email] == password:
         return True
     return False
 
+
 def hash_password(password):
     return hashlib.sha256(password.encode()).hexdigest()
+
 
 def login_page():
     st.title("Login")
@@ -30,9 +39,16 @@ def login_page():
         else:
             st.error("Incorrect email or password")
 
+
 def main_chat_interface():
     st.set_page_config(layout="wide")
-    
+
+    load_css()
+    render_header()
+
+    # Content area
+    st.markdown('<div class="content">', unsafe_allow_html=True)
+
     # Sidebar with user information
     with st.sidebar:
         st.header("User Information")
@@ -42,7 +58,7 @@ def main_chat_interface():
             st.session_state["user_email"] = None
             st.rerun()
 
-    st.header("CS Introduction To Computer Science Course- ChatBot")
+    # st.header("CS Introduction To Computer Science Course- ChatBot")
 
     prompt = st.chat_input(
         placeholder="Enter your question here..",
@@ -78,10 +94,13 @@ def main_chat_interface():
             generated_response = run_llm(
                 query=prompt,
                 chat_history=st.session_state["chat_history"],
-                user_email=st.session_state["user_email"]
+                user_email=st.session_state["user_email"],
             )
             sources = set(
-                [doc.metadata["source"] for doc in generated_response["source_documents"]]
+                [
+                    doc.metadata["source"]
+                    for doc in generated_response["source_documents"]
+                ]
             )
 
             formatted_response = (
@@ -91,7 +110,9 @@ def main_chat_interface():
             st.session_state["user_prompt_history"].append(prompt)
             st.session_state["chat_answers_history"].append(formatted_response)
             st.session_state["chat_history"].append(("human", prompt))
-            st.session_state["chat_history"].append(("ai", generated_response["result"]))
+            st.session_state["chat_history"].append(
+                ("ai", generated_response["result"])
+            )
 
     if st.session_state["chat_answers_history"]:
         for generated_response, user_query in zip(
@@ -100,6 +121,7 @@ def main_chat_interface():
         ):
             message(user_query, is_user=True)
             message(generated_response)
+
 
 # Main app logic
 if __name__ == "__main__":

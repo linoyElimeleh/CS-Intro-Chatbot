@@ -32,14 +32,11 @@ def run_llm(query: str, chat_history: List[Dict[str, Any]] = [], user_email: str
     )
 
     context = f"User email: {user_email}\n" if user_email else ""
-    result = qa.invoke(input={
-    "input": context + query, 
-    "chat_history": chat_history
-})
+    result = qa.invoke(input={"input": context + query, "chat_history": chat_history})
     new_result = {
         "query": result["input"],
         "result": result["answer"],
-        "source_documents": result["context"]
+        "source_documents": result["context"],
     }
     return new_result
 

@@ -1,0 +1,16 @@
+To compile a package from the shell (terminal / command com), 
+follow these steps: 
+
+-1. Don't change the given folder structure.
+ 0. Note that the TestList class begins with the statement
+    "import lists.*".
+ 1. Compile the TestList.java file. This will automatically compile
+    all the classes in the lists folder.
+
+That's it. If you will try to compile the classes in the lists
+folder in any other way (in the shell), you will get compilation errors.
+
+If you make changes in any one of the .java files in the lists
+folder, you must repeat step 1: recompile the TestList.java class
+(even if you did not change it). This action will recompile all the
+files in the lists folder, including the one that you changed.

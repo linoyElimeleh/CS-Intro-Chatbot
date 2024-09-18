@@ -1,12 +1,14 @@
 import certifi
 import os
-os.environ['SSL_CERT_FILE'] = certifi.where()
+
+os.environ["SSL_CERT_FILE"] = certifi.where()
 
 from dotenv import load_dotenv
 
 load_dotenv()
 from langchain_community.document_loaders import UnstructuredPowerPointLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
+
 # from langchain_community.document_loaders import ReadTheDocsLoader
 from langchain_openai import OpenAIEmbeddings
 from langchain_pinecone import PineconeVectorStore
@@ -17,17 +19,21 @@ embeddings = OpenAIEmbeddings(model="text-embedding-3-small")
 # Trnslate the data into pinecone
 # todo update it to read from goggle drive
 def ingest_docs():
-    folder_path = "intro-to-cs-public/lectures"
+    base_path = "intro-to-cs-public/lectures"
     documents = []
 
     # Iterate through all .pptx files in the folder
-    for filename in os.listdir(folder_path):
-        if filename.endswith(".pptx"):
-            file_path = os.path.join(folder_path, filename)
-            loader = UnstructuredPowerPointLoader(file_path)
-            raw_documents = loader.load()
-            print(f"Loaded {len(raw_documents)} documents from {filename}")
-            documents.extend(raw_documents)
+    for root, dirs, files in os.walk(base_path):
+        for file in files:
+            if file.endswith(".pptx"):
+                file_path = os.path.join(root, file)
+                loader = UnstructuredPowerPointLoader(file_path)
+                try:
+                    raw_documents = loader.load()
+                    print(f"Loaded {len(raw_documents)} documents from {file_path}")
+                    documents.extend(raw_documents)
+                except Exception as e:
+                    print(f"Error loading {file_path}: {str(e)}")
 
     print(f"Total loaded documents: {len(documents)}")
 

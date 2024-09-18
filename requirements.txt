@@ -1,3 +1,4 @@
+black
 streamlit
 streamlit-chat
 langchain
@@ -5,6 +6,7 @@ langchain-core
 langchain-community
 langchain-openai
 langchain-pinecone
+langchain-experimental
 unstructured
 python-dotenv
 python-pptx
