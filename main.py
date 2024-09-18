@@ -4,6 +4,10 @@ import streamlit as st
 from streamlit_chat import message
 from header import render_header
 import hashlib
+import re
+from pygments import highlight
+from pygments.lexers import JavaLexer
+from pygments.formatters import HtmlFormatter
 
 # Dummy user database (replace with a real database in production)
 USERS = {
@@ -38,6 +42,18 @@ def login_page():
             st.rerun()
         else:
             st.error("Incorrect email or password")
+
+
+def format_message(content):
+    # Function to replace code blocks with syntax highlighted HTML
+    def replace_code_block(match):
+        code = match.group(1)
+        highlighted = highlight(code, JavaLexer(), HtmlFormatter(style="friendly"))
+        return f'<pre style="background-color: #f0f0f0; padding: 10px; border-radius: 5px;">{highlighted}</pre>'
+
+    # Replace ```java ... ``` blocks with highlighted HTML
+    formatted = re.sub(r"```java(.*?)```", replace_code_block, content, flags=re.DOTALL)
+    return formatted
 
 
 def main_chat_interface():
@@ -120,7 +136,7 @@ def main_chat_interface():
             st.session_state["user_prompt_history"],
         ):
             message(user_query, is_user=True)
-            message(generated_response)
+            message(format_message(generated_response), allow_html=True)
 
 
 # Main app logic

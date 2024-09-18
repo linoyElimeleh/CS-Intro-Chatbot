@@ -11,3 +11,4 @@ unstructured
 python-dotenv
 python-pptx
 pinecone-client
+pygments
