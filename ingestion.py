@@ -6,7 +6,11 @@ os.environ["SSL_CERT_FILE"] = certifi.where()
 from dotenv import load_dotenv
 
 load_dotenv()
-from langchain_community.document_loaders import UnstructuredPowerPointLoader
+from langchain_community.document_loaders import (
+    UnstructuredPowerPointLoader,
+    TextLoader,
+)
+
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 
 # from langchain_community.document_loaders import ReadTheDocsLoader
@@ -25,9 +29,12 @@ def ingest_docs():
     # Iterate through all .pptx files in the folder
     for root, dirs, files in os.walk(base_path):
         for file in files:
-            if file.endswith(".pptx"):
+            if file.endswith((".pptx", ".java")):
                 file_path = os.path.join(root, file)
-                loader = UnstructuredPowerPointLoader(file_path)
+                if file.endswith(".pptx"):
+                    loader = UnstructuredPowerPointLoader(file_path)
+                else:  # .java file
+                    loader = TextLoader(file_path)
                 try:
                     raw_documents = loader.load()
                     print(f"Loaded {len(raw_documents)} documents from {file_path}")

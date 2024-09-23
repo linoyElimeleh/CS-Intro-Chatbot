@@ -34,6 +34,7 @@ def check_password(email, password):
 def hash_password(password):
     return hashlib.sha256(password.encode()).hexdigest()
 
+
 def load_css():
     with open("styles.css") as f:
         st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
