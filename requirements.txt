@@ -1,4 +1,5 @@
 black
+gunicorn
 streamlit
 streamlit-chat
 langchain

@@ -10,8 +10,9 @@ from langchain_community.document_loaders import (
     UnstructuredPowerPointLoader,
     TextLoader,
 )
-
 from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain.schema import Document
+from pptx import Presentation
 
 # from langchain_community.document_loaders import ReadTheDocsLoader
 from langchain_openai import OpenAIEmbeddings
@@ -31,25 +32,46 @@ def ingest_docs():
         for file in files:
             if file.endswith((".pptx", ".java")):
                 file_path = os.path.join(root, file)
-                if file.endswith(".pptx"):
-                    loader = UnstructuredPowerPointLoader(file_path)
-                else:  # .java file
-                    loader = TextLoader(file_path)
                 try:
-                    raw_documents = loader.load()
-                    print(f"Loaded {len(raw_documents)} documents from {file_path}")
-                    documents.extend(raw_documents)
+                    if file.endswith(".pptx"):
+                        prs = Presentation(file_path)
+                        for i, slide in enumerate(prs.slides):
+                            slide_content = ""
+                            for shape in slide.shapes:
+                                if hasattr(shape, 'text'):
+                                    slide_content += shape.text + "\n"
+                            if slide_content.strip():
+                                documents.append(Document(
+                                    page_content=slide_content.strip(),
+                                    metadata={"source": f"{file_path}:Slide{i+1}"}
+                                ))
+                    else:  # .java file
+                        loader = TextLoader(file_path)
+                        content = loader.load()[0].page_content
+                        # Split Java files by double newlines (usually separates methods/classes)
+                        java_splitter = RecursiveCharacterTextSplitter(
+                            separators=["\n\n"],
+                            chunk_size=1000,
+                            chunk_overlap=0
+                        )
+                        java_docs = java_splitter.create_documents([content])
+                        for i, doc in enumerate(java_docs):
+                            doc.metadata["source"] = f"{file_path}:Section{i+1}"
+                        documents.extend(java_docs)
+                    print(f"Processed {file_path}")
                 except Exception as e:
-                    print(f"Error loading {file_path}: {str(e)}")
+                    print(f"Error processing {file_path}: {str(e)}")
 
-    print(f"Total loaded documents: {len(documents)}")
+    print(f"Total processed documents: {len(documents)}")
 
-    text_splitter = RecursiveCharacterTextSplitter(chunk_size=600, chunk_overlap=50)
-    split_documents = text_splitter.split_documents(documents)
+    # Ensure each document has a unique source attribute
+    for i, doc in enumerate(documents):
+        if not hasattr(doc, 'metadata') or 'source' not in doc.metadata:
+            doc.metadata['source'] = f"document_{i}"
 
-    print(f"Going to add {len(split_documents)} to Pinecone")
+    print(f"Going to add {len(documents)} to Pinecone")
     PineconeVectorStore.from_documents(
-        split_documents, embeddings, index_name="cs-intro-chatbot"
+        documents, embeddings, index_name="cs-intro-chatbot"
     )
     print("****Loading to vectorstore done ***")
 

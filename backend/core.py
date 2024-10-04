@@ -1,6 +1,10 @@
 from dotenv import load_dotenv
 from langchain.chains.history_aware_retriever import create_history_aware_retriever
 from langchain.chains.retrieval import create_retrieval_chain
+from langchain.chains import ConversationalRetrievalChain
+from langchain_openai import ChatOpenAI
+from langchain_pinecone import PineconeVectorStore
+import openai
 
 load_dotenv()
 
@@ -17,28 +21,40 @@ from consts import INDEX_NAME
 
 def run_llm(query: str, chat_history: List[Dict[str, Any]] = [], user_email: str = ""):
     embeddings = OpenAIEmbeddings(model="text-embedding-3-small")
-    docsearch = PineconeVectorStore(index_name=INDEX_NAME, embedding=embeddings)
-    chat = ChatOpenAI(verbose=True, temperature=0)
-
-    rephrase_prompt = hub.pull("langchain-ai/chat-langchain-rephrase")
-    retrieval_qa_chat_prompt = hub.pull("langchain-ai/retrieval-qa-chat")
-    stuff_documents_chain = create_stuff_documents_chain(chat, retrieval_qa_chat_prompt)
-
-    history_aware_retriever = create_history_aware_retriever(
-        llm=chat, retriever=docsearch.as_retriever(), prompt=rephrase_prompt
-    )
-    qa = create_retrieval_chain(
-        retriever=history_aware_retriever, combine_docs_chain=stuff_documents_chain
+    vectorstore = PineconeVectorStore.from_existing_index(
+        index_name="cs-intro-chatbot", embedding=embeddings
     )
 
-    context = f"User email: {user_email}\n" if user_email else ""
-    result = qa.invoke(input={"input": context + query, "chat_history": chat_history})
-    new_result = {
-        "query": result["input"],
+    qa = ConversationalRetrievalChain.from_llm(
+        llm=ChatOpenAI(temperature=0, model_name="gpt-3.5-turbo"),
+        retriever=vectorstore.as_retriever(),
+        return_source_documents=True,
+    )
+
+    result = qa({"question": query, "chat_history": chat_history})
+
+    # Check if the result is empty or doesn't contain relevant information
+    if not result["source_documents"] or result["answer"].strip().lower().startswith("i don't have information"):
+        # If no relevant information from the course, use ChatGPT
+        chatgpt_response = get_chatgpt_response(query)
+        result["answer"] = f"We haven't studied that in the course until now. Here is a result from ChatGPT: \n\n{chatgpt_response}"
+        result["source_documents"] = []  # Clear source documents as they're not from the course
+
+    return {
         "result": result["answer"],
-        "source_documents": result["context"],
+        "source_documents": result["source_documents"],
+        "chat_history": chat_history,
     }
-    return new_result
+
+def get_chatgpt_response(query: str) -> str:
+    response = openai.ChatCompletion.create(
+        model="gpt-3.5-turbo",
+        messages=[
+            {"role": "system", "content": "You are a helpful assistant."},
+            {"role": "user", "content": query}
+        ]
+    )
+    return response.choices[0].message['content']
 
 
 if __name__ == "__main__":
