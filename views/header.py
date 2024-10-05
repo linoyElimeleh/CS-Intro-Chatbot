@@ -1,3 +1,4 @@
+import os
 import streamlit as st
 import base64
 
@@ -8,8 +9,9 @@ def img_to_base64(img_path):
 
 
 def render_header():
-    img_path = "/Users/lelimeleh/Documents/thesis/Project/CS-Intro-Chatbot/images/ReichmanLogo.png"
-    img_base64 = img_to_base64(img_path)
+    image_path = os.path.join(os.path.dirname(__file__), '..', 'images', 'ReichmanLogo.png')
+    # img_path = "../images/ReichmanLogo.png"
+    img_base64 = img_to_base64(image_path)
 
     st.markdown(
         f"""
