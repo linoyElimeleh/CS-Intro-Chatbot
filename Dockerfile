@@ -17,4 +17,4 @@ EXPOSE 8501
 ENV NAME World
 
 # Run startup.sh when the container launches
-CMD ["/bin/bash", "startup.sh"]
+CMD ["streamlit", "run", "app.py", "--server.port=8000", "--server.address=0.0.0.0"]
