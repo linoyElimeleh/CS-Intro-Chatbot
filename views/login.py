@@ -1,15 +1,16 @@
 import streamlit as st
 from views.header import render_header
 import logging
-from utils import login_user, get_cookie_manager, is_user_logged_in
-from datetime import datetime, timedelta
-
+from utils import login_user, is_user_logged_in
+import os
+import pandas as pd
 
 # Dummy user database (replace with a real database in production)
 USERS = {
     "user1@example.com",
     "user2@example.com",
 }
+base_path= "source/studentlist.csv"
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -40,7 +41,27 @@ def login_interface():
 
 
 def check_email(email):
-    return email in USERS
+    full_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'source', 'Studentslist.csv')
+    logger.info(f"Attempting to access file at: {full_path}")
+
+    if not os.path.exists(full_path):
+        logger.error(f"Student list file not found: {full_path}")
+        return False
+    
+    try:
+        # Read the CSV file
+        df = pd.read_csv(full_path)
+        
+        # Check if 'email' column exists
+        if 'email' not in df.columns:
+            logger.error("Email column not found in the CSV file")
+            return False
+        
+        # Check if the email is in the list
+        return email in df['email'].values
+    except Exception as e:
+        logger.error(f"Error reading CSV file: {e}")
+        return False
 
 
 def load_css():
