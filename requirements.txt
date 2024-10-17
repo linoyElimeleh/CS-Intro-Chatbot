@@ -12,3 +12,4 @@ python-dotenv
 python-pptx
 pinecone-client
 pygments
+extra-streamlit-components

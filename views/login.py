@@ -1,5 +1,9 @@
 import streamlit as st
 from views.header import render_header
+import logging
+from utils import login_user, get_cookie_manager, is_user_logged_in
+from datetime import datetime, timedelta
+
 
 # Dummy user database (replace with a real database in production)
 USERS = {
@@ -7,23 +11,31 @@ USERS = {
     "user2@example.com",
 }
 
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 def login_interface():
-
     load_css()
     render_header()
 
-    st.markdown('<div class="content">', unsafe_allow_html=True)
+    if is_user_logged_in():
+        st.rerun()
+
+    st.markdown('<div class="content login-container">', unsafe_allow_html=True)
 
     st.title("Login")
     email = st.text_input("Email")
-    if st.button("Login"):
-        if check_email(email):
-            st.session_state["user_email"] = email
-            st.session_state["logged_in"] = True
+    if st.button("Login", key="login_button"):
+        if check_email(email):  # Implement this function to validate the email
+            login_user(email)
             st.rerun()
         else:
             st.error("Invalid email address")
+    
+    st.markdown('</div>', unsafe_allow_html=True)
+
+    # Add this debug information
+    # st.write("Debug: Session state", st.session_state)
 
 
 def check_email(email):

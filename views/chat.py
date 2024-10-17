@@ -8,105 +8,99 @@ from pygments import highlight
 from pygments.lexers import JavaLexer
 from pygments.formatters import HtmlFormatter
 import os
+import extra_streamlit_components as stx
+from utils import logout_user, is_user_logged_in, get_user_email
+import logging
 
-def main_chat_interface():
-    st.set_page_config(layout="wide")
+logger = logging.getLogger(__name__)
 
+def chat_interface():
     load_css()
     render_header()
 
-    # Content area
-    st.markdown('<div class="content">', unsafe_allow_html=True)
+    logger.info("Chat Interface")
+    if not is_user_logged_in():
+        logger.info("User is not logged in")
+        st.rerun()
 
-    # Sidebar with user information
+    user_email = get_user_email()
+    logger.info("User is logged in")
+
+
+    # Initialize chat history if it doesn't exist
+    if "chat_history" not in st.session_state:
+        st.session_state.chat_history = []
+
+    # Ensure there's always at least one chat
+    if not st.session_state.chat_history:
+        st.session_state.chat_history.append({"title": "New Chat", "messages": []})
+
+    # Sidebar with chat history
     with st.sidebar:
-        st.header("User Information")
-        st.write(f"Email: {st.session_state['user_email']}")
-        if st.button("Logout"):
-            st.session_state["logged_in"] = False
-            st.session_state["user_email"] = None
+        st.title("Chat History")
+        st.write(f"Logged in as: {user_email}")
+        if st.button("Logout", key="logout_button_sidebar"):
+            logout_user()
             st.rerun()
+        
+        # Display chat history titles
+        for i, chat in enumerate(st.session_state.chat_history):
+            if st.button(f"Chat {i+1}: {chat['title'][:30]}...", key=f"chat_button_{i}"):
+                st.session_state.current_chat = i
+        
+        # New chat button
+        if st.button("New Chat", key="new_chat_button_sidebar"):
+            st.session_state.current_chat = len(st.session_state.chat_history)
+            st.session_state.chat_history.append({"title": "New Chat", "messages": []})
 
-    # st.header("CS Introduction To Computer Science Course- ChatBot")
+    # Main chat area
+    st.title("What can I help with?")
 
-    prompt = st.chat_input(
-        placeholder="Enter your question here..",
-        key=None,
-        max_chars=None,
-        disabled=False,
-        on_submit=None,
-        args=None,
-        kwargs=None,
-    )
+    # Ensure current_chat is set
+    if "current_chat" not in st.session_state:
+        st.session_state.current_chat = 0
 
-    if (
-        "chat_answers_history" not in st.session_state
-        and "user_prompt_history" not in st.session_state
-        and "chat_history" not in st.session_state
-    ):
-        st.session_state["chat_answers_history"] = []
-        st.session_state["user_prompt_history"] = []
-        st.session_state["chat_history"] = []
+    current_chat = st.session_state.chat_history[st.session_state.current_chat]
 
-    def create_sources_string(sources: List[str]) -> str:
-        if not sources:
-            return ""
-    
-        # Sort sources alphabetically
-        sorted_sources = sorted(set(sources))
-    
-        sources_string = "Sources:\n"
-        for i, source in enumerate(sorted_sources):
-            # Split the source into file path and page/section info
-            parts = source.split(':')
-            file_path = parts[0]
-            page_info = parts[1] if len(parts) > 1 else ""
-            
-            # Extract just the file name from the path
-            file_name = os.path.basename(file_path)
-            
-            if page_info:
-                sources_string += f"{i + 1}. {file_name} ({page_info})\n"
-            else:
-                sources_string += f"{i + 1}. {file_name}\n"
-    
-        return sources_string
+    # Display current chat messages
+    for message in current_chat["messages"]:
+        with st.chat_message(message["role"]):
+            st.write(message["content"])
 
-    if prompt:
-        with st.spinner("Generating response.."):
-            generated_response = run_llm(
-                query=prompt,
-                chat_history=st.session_state["chat_history"],
-                user_email=st.session_state["user_email"],
-            )
-            
-            if generated_response["source_documents"]:
-                sources = set(
-                    [
-                        doc.metadata["source"]
-                        for doc in generated_response["source_documents"]
-                    ]
-                )
-                formatted_response = (
-                    f"{generated_response['result']} \n\n {create_sources_string(sources)}"
-                )
-            else:
-                formatted_response = generated_response['result']
+    # Chat input
+    if prompt := st.chat_input("What is your question?"):
+        # Update chat title if it's the first message
+        if not current_chat["messages"]:
+            current_chat["title"] = prompt[:30] + "..."
 
-            st.session_state["user_prompt_history"].append(prompt)
-            st.session_state["chat_answers_history"].append(formatted_response)
-            st.session_state["chat_history"].append(("human", prompt))
-            st.session_state["chat_history"].append(
-                ("ai", generated_response["result"])
-            )
+        # Add user message to chat history
+        current_chat["messages"].append({"role": "human", "content": prompt})
+        st.chat_message("human").write(prompt)
 
-    if st.session_state["chat_answers_history"]:
-        for generated_response, user_query in zip(
-            st.session_state["chat_answers_history"],
-            st.session_state["user_prompt_history"],
-        ):
-            message(user_query, is_user=True)
-            message(format_message(generated_response), allow_html=True)
+        # Show spinner while waiting for AI response
+        with st.spinner("Thinking..."):
+            # Get AI response
+            response = run_llm(prompt, current_chat["messages"], user_email)
+        
+        # Add AI response to chat history
+        current_chat["messages"].append({"role": "ai", "content": response["result"]})
+        ai_message = st.chat_message("ai")
+        ai_message.write(response["result"])
+
+        # Display sources if available
+        if response.get("source_documents"):
+            st.write("Debug: Sources found")
+            with ai_message.expander("Sources"):
+                for i, source in enumerate(response["source_documents"], 1):
+                    st.markdown(f"**Source {i}:**")
+                    st.write(f"Content: {source.page_content}")
+                    st.write(f"Metadata: {source.metadata}")
+                    st.write("---")
+        else:
+            st.write("Debug: No sources found")
+
+        # # Force a rerun to update the chat display
+        # st.rerun()
 
 
 def load_css():
@@ -114,13 +108,5 @@ def load_css():
         st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
 
 
-def format_message(content):
-    # Function to replace code blocks with syntax highlighted HTML
-    def replace_code_block(match):
-        code = match.group(1)
-        highlighted = highlight(code, JavaLexer(), HtmlFormatter(style="friendly"))
-        return f'<pre style="background-color: #f0f0f0; padding: 10px; border-radius: 5px;">{highlighted}</pre>'
-
-    # Replace ```java ... ``` blocks with highlighted HTML
-    formatted = re.sub(r"```java(.*?)```", replace_code_block, content, flags=re.DOTALL)
-    return formatted
+# Make sure to export the chat_interface function
+__all__ = ['chat_interface']
