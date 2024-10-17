@@ -5,13 +5,6 @@ from utils import login_user, is_user_logged_in
 import os
 import pandas as pd
 
-# Dummy user database (replace with a real database in production)
-USERS = {
-    "user1@example.com",
-    "user2@example.com",
-}
-base_path= "source/studentlist.csv"
-
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 

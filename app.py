@@ -1,7 +1,7 @@
 import streamlit as st
 from views.login import login_interface
 from views.chat import chat_interface
-from utils import is_user_logged_in, get_cookie_manager
+from utils import is_user_logged_in
 import logging
 
 logging.basicConfig(level=logging.INFO)
