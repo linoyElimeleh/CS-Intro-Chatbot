@@ -15,6 +15,8 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 def login_interface():
+    logger.info("Login Interface")
+
     load_css()
     render_header()
 
@@ -26,7 +28,7 @@ def login_interface():
     st.title("Login")
     email = st.text_input("Email")
     if st.button("Login", key="login_button"):
-        if check_email(email):  # Implement this function to validate the email
+        if check_email(email):  
             login_user(email)
             st.rerun()
         else:
@@ -34,7 +36,6 @@ def login_interface():
     
     st.markdown('</div>', unsafe_allow_html=True)
 
-    # Add this debug information
     # st.write("Debug: Session state", st.session_state)
 
 

@@ -11,7 +11,6 @@ logger = logging.getLogger(__name__)
 def main():
 
     logger.info("Starting Streamlit app")
-    # cookie_manager = get_cookie_manager()
     
     if "chat_history" not in st.session_state:
         st.session_state.chat_history = []

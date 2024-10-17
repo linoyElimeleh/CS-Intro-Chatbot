@@ -1,24 +1,17 @@
-from typing import Set, List, Tuple
 from backend.core import run_llm
 import streamlit as st
-from streamlit_chat import message
 from views.header import render_header
-import re
-from pygments import highlight
-from pygments.lexers import JavaLexer
-from pygments.formatters import HtmlFormatter
-import os
-import extra_streamlit_components as stx
-from utils import logout_user, is_user_logged_in, get_user_email
+from utils import logout_user, is_user_logged_in, get_user_email, save_chat_history, load_chat_history, clear_chat_history
 import logging
 
 logger = logging.getLogger(__name__)
 
 def chat_interface():
+    logger.info("Chat Interface")
+
     load_css()
     render_header()
 
-    logger.info("Chat Interface")
     if not is_user_logged_in():
         logger.info("User is not logged in")
         st.rerun()
@@ -26,10 +19,18 @@ def chat_interface():
     user_email = get_user_email()
     logger.info("User is logged in")
 
+    loaded_history = load_chat_history(user_email)
+    # st.sidebar.write("Debug: Loaded chat history", loaded_history)
 
-    # Initialize chat history if it doesn't exist
-    if "chat_history" not in st.session_state:
-        st.session_state.chat_history = []
+     # Initialize or update chat_history_list in session state
+    if "chat_history" not in st.session_state or not st.session_state.chat_history:
+        st.session_state.chat_history = loaded_history if loaded_history else [{"title": "New Chat", "messages": []}]
+    elif loaded_history:  # Update session state if loaded history is different
+        st.session_state.chat_history = loaded_history
+
+    # Ensure current_chat is within valid range
+    if "current_chat" not in st.session_state or st.session_state.current_chat >= len(st.session_state.chat_history):
+        st.session_state.current_chat = 0
 
     # Ensure there's always at least one chat
     if not st.session_state.chat_history:
@@ -37,30 +38,46 @@ def chat_interface():
 
     # Sidebar with chat history
     with st.sidebar:
-        st.title("Chat History")
+
+         # User information and logout (moved to the bottom of the sidebar)
+        st.markdown("<hr>", unsafe_allow_html=True)  # Add a horizontal line for separation
+        st.subheader("User Information")
         st.write(f"Logged in as: {user_email}")
-        if st.button("Logout", key="logout_button_sidebar"):
+        if st.button("Logout"):
             logout_user()
             st.rerun()
+
         
+        st.title("Chat History")
+
         # Display chat history titles
-        for i, chat in enumerate(st.session_state.chat_history):
+        for i, chat in enumerate(loaded_history):
             if st.button(f"Chat {i+1}: {chat['title'][:30]}...", key=f"chat_button_{i}"):
                 st.session_state.current_chat = i
+
+        if st.button("New Chat", key="new_chat_button"):
+            new_chat = {"title": "New Chat", "messages": []}
+            st.session_state.chat_history.append(new_chat)
+            st.session_state.current_chat = len(st.session_state.chat_history) - 1
+            save_chat_history(user_email, st.session_state.chat_history)
         
-        # New chat button
-        if st.button("New Chat", key="new_chat_button_sidebar"):
-            st.session_state.current_chat = len(st.session_state.chat_history)
-            st.session_state.chat_history.append({"title": "New Chat", "messages": []})
 
     # Main chat area
     st.title("What can I help with?")
 
-    # Ensure current_chat is set
-    if "current_chat" not in st.session_state:
-        st.session_state.current_chat = 0
+    # # Ensure current_chat is set
+    # if "current_chat" not in st.session_state or st.session_state.current_chat >= len(st.session_state.chat_history):
+    #     st.session_state.current_chat = 0
 
-    current_chat = st.session_state.chat_history[st.session_state.current_chat]
+    # current_chat = st.session_state.chat_history[st.session_state.current_chat]
+
+    if 0 <= st.session_state.current_chat < len(st.session_state.chat_history):
+        current_chat = st.session_state.chat_history[st.session_state.current_chat]
+    else:
+        current_chat = {"title": "New Chat", "messages": []}
+        st.session_state.chat_history_list.append(current_chat)
+        st.session_state.current_chat = len(st.session_state.chat_history_list) - 1
+
 
     # Display current chat messages
     for message in current_chat["messages"]:
@@ -99,6 +116,9 @@ def chat_interface():
         else:
             st.write("Debug: No sources found")
 
+        # Save updated chat history to cookie
+        save_chat_history(user_email, st.session_state.chat_history)
+        st.sidebar.write("Debug: Chat history saved", st.session_state.chat_history)
         # # Force a rerun to update the chat display
         # st.rerun()
 
