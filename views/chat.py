@@ -4,6 +4,8 @@ from views.header import render_header
 from utils import logout_user, is_user_logged_in, get_user_email, save_chat_history, load_chat_history, clear_chat_history
 import logging
 
+from views.sidebar import sidebar_view
+
 logger = logging.getLogger(__name__)
 
 def chat_interface():
@@ -37,31 +39,8 @@ def chat_interface():
         st.session_state.chat_history.append({"title": "New Chat", "messages": []})
 
     # Sidebar with chat history
-    with st.sidebar:
-
-         # User information and logout (moved to the bottom of the sidebar)
-        st.markdown("<hr>", unsafe_allow_html=True)  # Add a horizontal line for separation
-        st.subheader("User Information")
-        st.write(f"Logged in as: {user_email}")
-        if st.button("Logout"):
-            logout_user()
-            st.rerun()
-
-        
-        st.title("Chat History")
-
-        # Display chat history titles
-        for i, chat in enumerate(loaded_history):
-            if st.button(f"Chat {i+1}: {chat['title'][:30]}...", key=f"chat_button_{i}"):
-                st.session_state.current_chat = i
-
-        if st.button("New Chat", key="new_chat_button"):
-            new_chat = {"title": "New Chat", "messages": []}
-            st.session_state.chat_history.append(new_chat)
-            st.session_state.current_chat = len(st.session_state.chat_history) - 1
-            save_chat_history(user_email, st.session_state.chat_history)
-        
-
+    sidebar_view(user_email, loaded_history)
+    
     # Main chat area
     st.title("What can I help with?")
 
@@ -121,6 +100,8 @@ def chat_interface():
         st.sidebar.write("Debug: Chat history saved", st.session_state.chat_history)
         # # Force a rerun to update the chat display
         # st.rerun()
+
+
 
 
 def load_css():
