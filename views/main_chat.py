@@ -115,22 +115,5 @@ def get_ai_response(prompt, messages, user_email):
 def display_ai_response(response):
     ai_message = st.chat_message("ai")
     ai_message.write(response["result"])
-    
-    display_sources(response, ai_message)
-
-def display_sources(response, ai_message):
-    sources = response.get("sources")
-    if sources:
-        with ai_message.expander("Sources (click to expand)", expanded=False):  # Collapsed by default
-            st.write("### Sources:")
-            for i, source in enumerate(sources, 1):
-                st.write(f"**Source {i}**")
-                st.markdown(f"- **Content:** {source['page_content']}")
-                st.markdown(f"- **Source Location:** {source['metadata']['source']}")
-                st.markdown("---")  # Add a separator between different sources for clarity
-    else:
-        with ai_message.expander("Sources (click to expand)", expanded=False):
-            st.write("No sources found for this response.")
-
 
 __all__ = ['chat_interface']
