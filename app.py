@@ -21,10 +21,10 @@ def main():
         chat_interface()
     else:
         logger.info("User is not logged in")
-        if "ingestion_done" not in st.session_state:
-            logger.info("Running document ingestion")
-            ingest_docs()
-            st.session_state.ingestion_done = True
+        # if "ingestion_done" not in st.session_state:
+        #     logger.info("Running document ingestion")
+        #     ingest_docs()
+        #     st.session_state.ingestion_done = True
         login_interface()
 
 if __name__ == "__main__":

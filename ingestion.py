@@ -1,9 +1,8 @@
 import logging
 import certifi
 import os
-from pinecone import Pinecone, ServerlessSpec
+from pinecone import Pinecone
 import pinecone
-from pinecone.exceptions import NotFoundException
 
 
 os.environ["SSL_CERT_FILE"] = certifi.where()

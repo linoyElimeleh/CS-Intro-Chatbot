@@ -107,21 +107,14 @@ def display_ai_response(response):
     display_sources(response, ai_message)
 
 def display_sources(response, ai_message):
-    sources = response.get("sources") or response.get("source_documents")
-    logger.info(f"Sources: {sources}")
+    sources = response.get("sources")
     if sources:
-        ai_message.write("\n\nSources:")
-        for i, source in enumerate(sources, 1):
-            # if isinstance(source, dict):
-            #     content = source.get("page_content", "No content available")
-            #     metadata = source.get("metadata", {})
-            # else:
-            #     content = getattr(source, "page_content", "No content available")
-            #     metadata = getattr(source, "metadata", {})
-            
-            ai_message.write(f"{i}. Content: {source['page_content']}")
-            ai_message.write(f"   Metadata: {source['metadata']}")
+        with ai_message.expander("Sources", expanded=False):
+            for i, source in enumerate(sources, 1):
+                st.write(f"{i}. Content: {source['page_content']}")
+                st.write(f"   Metadata: {source['metadata']}")
     else:
-        ai_message.write("No sources found for this response.")
+        with ai_message.expander("Sources", expanded=False):
+            st.write("No sources found for this response.")
 
 __all__ = ['chat_interface']
