@@ -37,13 +37,25 @@ def load_css():
 def display_main_chat_area():
     st.title("What can I help with?")
     current_chat = get_current_chat()
-    logging.info("currnet chat: %s", current_chat)
+    logging.info("Current chat details: %s", json.dumps(current_chat, indent=4))  # More detailed log
 
     for message in current_chat["messages"]:
         with st.chat_message(message["role"]):
             st.write(message["content"])
+
+            # If the message is from AI, we check for sources
             if message["role"] == "ai":
-                st.write(message["sources"])
+                sources = message.get("sources")
+                if sources:
+                    # Using an expander to collapse the sources by default
+                    with st.expander("Sources (click to expand)", expanded=False):
+                        for i, source in enumerate(sources, 1):
+                            st.write(f"**Source {i}:**")
+                            st.markdown(f"- **Content:** {source['page_content']}")
+                            st.markdown(f"- **Source Location:** {source['metadata']['source']}")
+                else:
+                    st.write("No sources available.")
+
 
 def get_current_chat():
     if 0 <= st.session_state.current_chat < len(st.session_state.chat_history):
@@ -56,7 +68,7 @@ def get_current_chat():
 
 def handle_user_input(user_email):
     current_chat = get_current_chat()
-    if prompt := st.chat_input("What is your question?"):
+    if prompt := st.chat_input("Ask me anything about Computer Science, AI, or programming..."):
         update_chat_title(current_chat, prompt)
         add_message_to_chat(current_chat, "human", prompt)
         
@@ -109,12 +121,16 @@ def display_ai_response(response):
 def display_sources(response, ai_message):
     sources = response.get("sources")
     if sources:
-        with ai_message.expander("Sources", expanded=False):
+        with ai_message.expander("Sources (click to expand)", expanded=False):  # Collapsed by default
+            st.write("### Sources:")
             for i, source in enumerate(sources, 1):
-                st.write(f"{i}. Content: {source['page_content']}")
-                st.write(f"   Metadata: {source['metadata']}")
+                st.write(f"**Source {i}**")
+                st.markdown(f"- **Content:** {source['page_content']}")
+                st.markdown(f"- **Source Location:** {source['metadata']['source']}")
+                st.markdown("---")  # Add a separator between different sources for clarity
     else:
-        with ai_message.expander("Sources", expanded=False):
+        with ai_message.expander("Sources (click to expand)", expanded=False):
             st.write("No sources found for this response.")
+
 
 __all__ = ['chat_interface']

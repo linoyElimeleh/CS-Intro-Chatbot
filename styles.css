@@ -26,3 +26,32 @@
 .content {
     margin-top: 100px; /* Adjust based on your header height */
 }
+
+/* Style for the chat messages */
+.chat-message {
+    margin: 10px 0;
+    padding: 10px;
+    border-radius: 8px;
+    background-color: #f0f0f5;  /* Light background for messages */
+    font-family: Arial, sans-serif;
+}
+
+/* Differentiate user and AI messages */
+.chat-message.human {
+    background-color: #e0f7fa;  /* Light blue for user messages */
+}
+
+.chat-message.ai {
+    background-color: #ffebee;  /* Light pink for AI messages */
+}
+
+/* Style for the source sections */
+.source-section {
+    font-size: 14px;
+    margin-top: 5px;
+}
+
+.source-section h3 {
+    font-size: 16px;
+    margin-bottom: 5px;
+}
