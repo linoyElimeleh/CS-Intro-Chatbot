@@ -1,13 +1,16 @@
-from backend.core import run_llm
 import streamlit as st
-from views.header import render_header
-from utils import logout_user, is_user_logged_in, get_user_email, save_chat_history, load_chat_history, clear_chat_history
+from utils import load_chat_history, logout_user, save_chat_history
 import logging
+
+from views.chat_history import initialize_chat_history
 
 logger = logging.getLogger(__name__)
 
-def sidebar_view(user_email, loaded_history):
+def sidebar_view(user_email):
     logger.info("SideBar Interface")
+
+    loaded_history = load_chat_history(user_email)
+    initialize_chat_history(loaded_history)
 
     with st.sidebar:
 
@@ -35,5 +38,16 @@ def sidebar_view(user_email, loaded_history):
             st.session_state.current_chat = len(st.session_state.chat_history) - 1
             save_chat_history(user_email, st.session_state.chat_history)
 
+
+        # Add a horizontal line for separation
+        st.markdown("<hr>", unsafe_allow_html=True)  
+        st.sidebar.markdown("""
+**© 2024 Linoy Gabay. All rights reserved.**
+
+For inquiries or to report issues, please contact: [Linoy Gabay](mailto:lino1998y@gmail.com)
+""")
+
+
 # Make sure to export the chat_interface function
 __all__ = ['chat_interface']
+

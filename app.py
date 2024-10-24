@@ -1,6 +1,7 @@
 import streamlit as st
+from ingestion import clear_pinecone_vector_store, ingest_docs
 from views.login import login_interface
-from views.chat import chat_interface
+from views.main_chat import chat_interface
 from utils import is_user_logged_in
 import logging
 
@@ -20,6 +21,10 @@ def main():
         chat_interface()
     else:
         logger.info("User is not logged in")
+        if "ingestion_done" not in st.session_state:
+            logger.info("Running document ingestion")
+            ingest_docs()
+            st.session_state.ingestion_done = True
         login_interface()
 
 if __name__ == "__main__":

@@ -1,5 +1,10 @@
+import logging
 import certifi
 import os
+from pinecone import Pinecone, ServerlessSpec
+import pinecone
+from pinecone.exceptions import NotFoundException
+
 
 os.environ["SSL_CERT_FILE"] = certifi.where()
 
@@ -18,14 +23,24 @@ from pptx import Presentation
 from langchain_openai import OpenAIEmbeddings
 from langchain_pinecone import PineconeVectorStore
 
+logger = logging.getLogger(__name__)
 embeddings = OpenAIEmbeddings(model="text-embedding-3-small")
 
 
 # Trnslate the data into pinecone
 # todo update it to read from goggle drive
 def ingest_docs():
+    try:
+        clear_pinecone_vector_store()
+        # Rest of your ingestion code...
+    except Exception as e:
+        logger.error(f"Error during document ingestion: {str(e)}")
+        # Optionally, you might want to re-raise the exception or handle it differently
+
     base_path = "intro-to-cs-public/lectures"
     documents = []
+
+    logger.info(f"Start ingesting docs from {base_path}")
 
     # Iterate through all .pptx files in the folder
     for root, dirs, files in os.walk(base_path):
@@ -71,9 +86,31 @@ def ingest_docs():
 
     print(f"Going to add {len(documents)} to Pinecone")
     PineconeVectorStore.from_documents(
-        documents, embeddings, index_name="cs-intro-chatbot"
+        documents, embeddings, index_name=os.getenv("PINECONE_INDEX_NAME")
     )
     print("****Loading to vectorstore done ***")
+
+
+def clear_pinecone_vector_store():
+    try:
+        # Initialize Pinecone with API key and environment
+        pc = Pinecone(
+            api_key=os.getenv("PINECONE_API_KEY")
+        )
+        # Initialize the index with the name and no need for explicit host
+        index_name = os.getenv("PINECONE_INDEX_NAME")
+        
+        index = pc.Index(index_name)
+
+        # Delete all vectors in the index
+        index.delete(delete_all=True)
+        logger.info("Pinecone vector store cleared successfully.")
+    
+    except pinecone.exceptions.NotFoundException:
+        logger.warning("Pinecone index not found. It may have already been deleted or not yet created.")
+    
+    except Exception as e:
+        logger.error(f"Error clearing Pinecone vector store: {str(e)}")
 
 
 if __name__ == "__main__":
