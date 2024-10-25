@@ -8,6 +8,7 @@ langchain-openai
 langchain-pinecone
 langchain-experimental
 unstructured
+python-docx
 python-dotenv
 python-pptx
 pinecone-client

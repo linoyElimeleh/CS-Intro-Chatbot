@@ -4,7 +4,6 @@ import os
 from pinecone import Pinecone
 import pinecone
 
-
 os.environ["SSL_CERT_FILE"] = certifi.where()
 
 from dotenv import load_dotenv
@@ -17,34 +16,31 @@ from langchain_community.document_loaders import (
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.schema import Document
 from pptx import Presentation
+from docx import Document as DocxDocument
 
-# from langchain_community.document_loaders import ReadTheDocsLoader
 from langchain_openai import OpenAIEmbeddings
 from langchain_pinecone import PineconeVectorStore
 
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 embeddings = OpenAIEmbeddings(model="text-embedding-3-small")
 
 
-# Trnslate the data into pinecone
-# todo update it to read from goggle drive
+# Translate the data into Pinecone
 def ingest_docs():
     try:
         clear_pinecone_vector_store()
-        # Rest of your ingestion code...
     except Exception as e:
         logger.error(f"Error during document ingestion: {str(e)}")
-        # Optionally, you might want to re-raise the exception or handle it differently
 
     base_path = "intro-to-cs-public/lectures"
     documents = []
 
     logger.info(f"Start ingesting docs from {base_path}")
 
-    # Iterate through all .pptx files in the folder
     for root, dirs, files in os.walk(base_path):
         for file in files:
-            if file.endswith((".pptx", ".java")):
+            if file.endswith((".pptx", ".java", ".docx")):
                 file_path = os.path.join(root, file)
                 try:
                     if file.endswith(".pptx"):
@@ -59,35 +55,49 @@ def ingest_docs():
                                     page_content=slide_content.strip(),
                                     metadata={"source": f"{file_path}:Slide{i+1}"}
                                 ))
-                    else:  # .java file
+                                logger.info(f"Processed {file_path}:Slide{i+1}")
+                    
+                    elif file.endswith(".docx"):
+                        doc = DocxDocument(file_path)
+                        doc_content = ""
+                        for para in doc.paragraphs:
+                            doc_content += para.text + "\n"
+                        if doc_content.strip():
+                            documents.append(Document(
+                                page_content=doc_content.strip(),
+                                metadata={"source": f"{file_path}"}
+                            ))
+                            logger.info(f"Processed {file_path}")
+
+                    # Java file handling (unchanged)
+                    else:
                         loader = TextLoader(file_path)
                         content = loader.load()[0].page_content
-                        # Split Java files by double newlines (usually separates methods/classes)
                         java_splitter = RecursiveCharacterTextSplitter(
                             separators=["\n\n"],
                             chunk_size=1000,
                             chunk_overlap=0
                         )
                         java_docs = java_splitter.create_documents([content])
-                        for i, doc in enumerate(java_docs):
-                            doc.metadata["source"] = f"{file_path}:Section{i+1}"
+                        for j, doc in enumerate(java_docs):
+                            doc.metadata["source"] = f"{file_path}:Section{j+1}"
                         documents.extend(java_docs)
-                    print(f"Processed {file_path}")
+                        logger.info(f"Processed Java file {file_path} into {len(java_docs)} sections")
+
                 except Exception as e:
-                    print(f"Error processing {file_path}: {str(e)}")
+                    logger.error(f"Error processing {file_path}: {str(e)}")
 
-    print(f"Total processed documents: {len(documents)}")
+    logger.info(f"Total processed documents: {len(documents)}")
 
-    # Ensure each document has a unique source attribute
     for i, doc in enumerate(documents):
         if not hasattr(doc, 'metadata') or 'source' not in doc.metadata:
             doc.metadata['source'] = f"document_{i}"
 
-    print(f"Going to add {len(documents)} to Pinecone")
+    logger.info(f"Going to add {len(documents)} documents to Pinecone")
     PineconeVectorStore.from_documents(
         documents, embeddings, index_name=os.getenv("PINECONE_INDEX_NAME")
     )
-    print("****Loading to vectorstore done ***")
+    logger.info("****Loading to vectorstore done ***")
 
 
 def clear_pinecone_vector_store():
