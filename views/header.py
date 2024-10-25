@@ -18,7 +18,7 @@ def render_header():
         <div class="fixed-header">
             <div class="header-content">
                 <img src="data:image/png;base64,{img_base64}" style="height: 60px; margin-right: 20px;">
-                <h1 style="font-size: 1.5rem; font-weight: bold; color: #333;">Introduction To Computer Science Course ChatBot</h1>
+                <h1 style="font-size: 1.5rem; font-weight: bold; color: #333;">RunAI - Introduction To Computer Science Course ChatBot</h1>
             </div>
         </div>
         """,

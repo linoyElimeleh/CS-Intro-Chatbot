@@ -42,7 +42,7 @@ def run_llm(query: str, chat_history: List[Dict[str, str]], user_email: str):
 
     if "I can't find specific information about that in the course materials" in result["answer"]:
         chatgpt_response = get_chatgpt_response(query)
-        result["answer"] = f"I couldn't find specific information about that in our course materials. However, here's a general answer from ChatGPT:\n\n{chatgpt_response}"
+        result["answer"] = f"I couldn't find answers to your question in our course materials. However, here's a general answer from ChatGPT:\n\n{chatgpt_response}"
         result["source_documents"] = []
     
     return {
