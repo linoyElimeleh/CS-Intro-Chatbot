@@ -27,3 +27,6 @@ def render_header():
 
     # Add some space after the header
     st.markdown('<div style="margin-top: 80px;"></div>', unsafe_allow_html=True)
+
+def render_title_and_logo():
+    st.set_page_config(page_title="RunAI - Introduction To Computer Science Course ChatBot", page_icon="images/ReichmanLogo.png")
