@@ -138,9 +138,43 @@ def get_ai_response(prompt, messages, user_email):
         return run_llm(prompt, messages, user_email)
 
 # Display the AI response in the chat
+# def display_ai_response(response):
+#     ai_message = st.chat_message("ai")
+#     ai_message.write(response["result"])
+#     if response.get("sources"):
+#         with st.expander("Sources (click to expand)", expanded=False):
+#             for i, source in enumerate(response["sources"], 1):
+#                 st.markdown(f"**Source {i}:**")
+#                 st.markdown(f"```java\n{source['page_content']}\n```")
+#                 st.markdown(f"- **Source Location:** {source['metadata']['source']}")
+
+# Display the AI response in the chat
 def display_ai_response(response):
     ai_message = st.chat_message("ai")
-    ai_message.write(response["result"])
+
+    # Check if the response includes code examples
+    if "```" in response["result"]:
+        # Split the response by code sections
+        parts = response["result"].split("```")
+        for i, part in enumerate(parts):
+            if i % 2 == 0:
+                # Display normal text
+                ai_message.write(part.strip())
+            else:
+                # Display code with syntax highlighting
+                ai_message.code(part.strip(), language="java")
+    else:
+        # Display the entire response as text if no code blocks are detected
+        ai_message.write(response["result"])
+
+    # Display sources if available
+    if response.get("sources"):
+        with st.expander("Sources (click to expand)", expanded=False):
+            for i, source in enumerate(response["sources"], 1):
+                st.markdown(f"**Source {i}:**")
+                st.code(source['page_content'], language="java")
+                st.markdown(f"- **Source Location:** {source['metadata']['source']}")
+
 
 # Expose the chat interface function
 __all__ = ['chat_interface']

@@ -15,13 +15,18 @@ def run_llm(query: str, chat_history: List[Dict[str, str]], user_email: str):
         index_name=os.getenv("PINECONE_INDEX_NAME"), embedding=embeddings
     )
 
-    # Define the custom prompt
     custom_prompt = PromptTemplate(
         input_variables=["context", "question", "chat_history"],
         template="""You are an AI assistant for the "Introduction to Computer Science" course. 
         Use the following context from the course materials to answer the question. 
-        If the answer is not in the context, say "I can't find specific information about that in the course materials."
 
+        If the user's question is unclear or could be rephrased in different ways, 
+        try to infer similar questions or commonly asked variations to provide a relevant answer.
+        
+        When providing code examples, format them as separate blocks using triple backticks (```) for proper readability.
+
+        If the answer is not in the context, say "I can't find specific information about that in the course materials."
+        
         Context: {context}
         Chat History: {chat_history}
         Human: {question}
@@ -42,7 +47,7 @@ def run_llm(query: str, chat_history: List[Dict[str, str]], user_email: str):
 
     if "I can't find specific information about that in the course materials" in result["answer"]:
         chatgpt_response = get_chatgpt_response(query)
-        result["answer"] = f"I couldn't find answers to your question in our course materials. However, here's a general answer from ChatGPT:\n\n{chatgpt_response}"
+        result["answer"] = f"I couldn't find answers to your question in our course materials. However, here's a general answer from ChatGPT:\n\n{chatgpt_response}. \n\nPlease rephrase your question or try a different one."
         result["source_documents"] = []
     
     return {
@@ -68,7 +73,7 @@ def get_chatgpt_response(query: str) -> str:
     llm = ChatOpenAI(
         model_name="gpt-3.5-turbo",  # Specify the chat model
         temperature=0.7,  # Adjust temperature for randomness
-        max_tokens=150  # Limit the response length if needed
+        max_tokens=500  # Limit the response length if needed
     )
 
     # Create the response using the LangChain interface
