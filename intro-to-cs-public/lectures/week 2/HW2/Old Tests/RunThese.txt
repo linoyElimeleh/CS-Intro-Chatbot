@@ -1,0 +1,19 @@
+java TimeCalc 26:50 100 | java Test_TimeCalc 26:50 100 >> test.txt
+java TimeCalc 10:20 6 | java Test_TimeCalc 10:20 6 >> test.txt
+java TimeCalc 11:59 70 | java Test_TimeCalc 11:59 70 >> test.txt
+
+java CalcPi 10 | java Test_CalcPI 10 >> test.txt
+java CalcPi 7 | java Test_CalcPI 7 >> test.txt
+java CalcPi 3 | java Test_CalcPI 3 >> test.txt
+
+java Cheers IDC 5 | java Test_Cheers IDC 5 >> test.txt
+java Cheers psst 7 | java Test_Cheers psst 7 >> test.txt
+java Cheers AEIOU 10 | java Test_Cheers AEIOU 10 >> test.txt
+
+java TestRandom 5000 | java Test_TestRandom >> test.txt
+java TestRandom 10000 | java Test_TestRandom >> test.txt
+java TestRandom 100000 | java Test_TestRandom >> test.txt
+
+java Collatz 7 v | java Test_Collatz 7 >> test.txt
+java Collatz 15 v | java Test_Collatz 15 >> test.txt
+java Collatz 30 v | java Test_Collatz 30 >> test.txt

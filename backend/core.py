@@ -69,17 +69,19 @@ def format_chat_history(chat_history):
     return paired_history
 
 def get_chatgpt_response(query: str) -> str:
-    # Initialize the LangChain ChatOpenAI instance with the model name and parameters
-    llm = ChatOpenAI(
-        model_name="gpt-3.5-turbo",  # Specify the chat model
-        temperature=0.7,  # Adjust temperature for randomness
-        max_tokens=500  # Limit the response length if needed
+    custom_prompt = (
+        "Your answer should be related to Java and content that is typically learned in an Intro to Computer Science course. Also Try to bring examples to the answer if possible. "
+        f"Question: {query}"
     )
 
-    # Create the response using the LangChain interface
-    response = llm.generate([query])
+    llm = ChatOpenAI(
+        model_name="gpt-3.5-turbo",
+        temperature=0.7,  
+        max_tokens=500  
+    )
 
-    # Return the assistant's reply
+    response = llm.generate([custom_prompt]) 
+
     return response.generations[0][0].text
 
 
