@@ -1,3 +1,4 @@
+import json
 import os
 import streamlit as st
 from views.header import render_header
@@ -12,7 +13,14 @@ try:
     get_app()
 except ValueError:
     # If not, initialize it
-    cred = credentials.Certificate(os.getenv("FIREBASE_CONFIG"))
+    with open(os.getenv("FIREBASE_CONFIG")) as f:
+        firebase_config = json.load(f)
+    firebase_config["private_key"] = os.getenv("FIREBASE_PRIVATE_KEY").replace("\\n", "\n")
+    firebase_config["client_email"] = os.getenv("FIREBASE_CLIENT_EMAIL")
+    firebase_config["client_id"] = os.getenv("FIREBASE_CLIENT_ID")
+    firebase_config["private_key_id"] = os.getenv("FIREBASE_PRIVATE_KEY_ID")
+    
+    cred = credentials.Certificate(firebase_config)
     logger.info(f"Using credentials: {cred}")
     initialize_app(cred)
 
