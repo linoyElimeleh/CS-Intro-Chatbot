@@ -39,12 +39,11 @@ def sidebar_view(user_email):
             save_chat_history(user_email, st.session_state.chat_history)
 
 
-        # Add a horizontal line for separation
         st.markdown("<hr>", unsafe_allow_html=True)  
         st.sidebar.markdown("""
-**© 2024 Linoy Gabay. All rights reserved.**
+**© 2024 All rights reserved To Linoy Gabay.**
 
-For inquiries or to report issues, please contact: [Linoy Gabay](mailto:lino1998y@gmail.com)
+To report issues, please contact: [Linoy Gabay](mailto:lino1998y@gmail.com)
 """)
 
 

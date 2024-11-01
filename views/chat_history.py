@@ -1,4 +1,3 @@
-
 import streamlit as st
 
 def initialize_chat_history(loaded_history):

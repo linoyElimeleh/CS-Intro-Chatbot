@@ -11,6 +11,8 @@ from utils import is_user_logged_in, get_user_email, save_chat_history
 logger = logging.getLogger(__name__)
 
 # Main function for the chat interface
+
+
 def chat_interface():
     logger.info("Chat Interface Initialized")
 
@@ -37,6 +39,8 @@ def chat_interface():
     handle_user_input(user_email)
 
 # Check if the user is logged in, redirect if not
+
+
 def check_user_login():
     if not is_user_logged_in():
         logger.info("User is not logged in")
@@ -46,13 +50,17 @@ def check_user_login():
     return True
 
 # Load custom CSS from a file
+
+
 def load_css():
     with open("styles.css") as f:
         st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
 
 # Display the main chat interface, including previous chat messages
+
+
 def display_main_chat_area():
-    # st.title("What can I help with?") 
+    # st.title("What can I help with?")
     current_chat = get_current_chat()
 
     # Log current chat details for debugging
@@ -73,6 +81,8 @@ def display_main_chat_area():
                     st.write("No sources available.")
 
 # Retrieve the current chat from the session state
+
+
 def get_current_chat():
     if 0 <= st.session_state.current_chat < len(st.session_state.chat_history):
         return st.session_state.chat_history[st.session_state.current_chat]
@@ -83,16 +93,21 @@ def get_current_chat():
         return new_chat
 
 # Handle user input and pass it to the AI model for response
+
+
 def handle_user_input(user_email):
     current_chat = get_current_chat()
 
     # Prompt user for input
     if prompt := st.chat_input("Ask me anything about Introduction To Computer Science Course..."):
-        update_chat_title(current_chat, prompt)  # Update chat title with the user prompt
-        add_message_to_chat(current_chat, "human", prompt)  # Add user message to chat
+        # Update chat title with the user prompt
+        update_chat_title(current_chat, prompt)
+        # Add user message to chat
+        add_message_to_chat(current_chat, "human", prompt)
 
         # Get AI response
-        response = get_ai_response(prompt, current_chat["messages"], user_email)
+        response = get_ai_response(
+            prompt, current_chat["messages"], user_email)
 
         # Serialize source documents for logging and display
         serializable_sources = [
@@ -118,21 +133,29 @@ def handle_user_input(user_email):
     save_chat_history(user_email, st.session_state.chat_history)
 
 # Update the chat title with the user's first message
+
+
 def update_chat_title(chat, prompt):
     if not chat["messages"]:
         chat["title"] = prompt[:30] + "..."
 
 # Add a message to the chat from either the user or AI
+
+
 def add_message_to_chat(chat, role, content):
     chat["messages"].append({"role": role, "content": content})
     st.chat_message(role).write(content)
 
 # Get the AI response by calling the LLM with user input and chat history
+
+
 def get_ai_response(prompt, messages, user_email):
     with st.spinner("Thinking..."):  # Show a spinner while AI processes the input
         return run_llm(prompt, messages, user_email)
 
 # Display the AI response in the chat
+
+
 def display_ai_response(response):
     ai_message = st.chat_message("ai")
 
@@ -156,6 +179,8 @@ def display_ai_response(response):
         display_sources(response)
 
 # Function to display sources
+
+
 def display_sources(response):
     with st.expander("Sources (click to expand)", expanded=False):
         for i, source in enumerate(response["sources"], 1):
@@ -174,8 +199,10 @@ def display_sources(response):
             else:
                 # Display the entire source content as code if no code blocks are detected
                 st.code(source['page_content'], language="java")
-                
-            st.markdown(f"- **Source Location:** {source['metadata']['source']}")
+
+            st.markdown(
+                f"- **Source Location:** {source['metadata']['source']}")
+
 
 # Expose the chat interface function
 __all__ = ['chat_interface']

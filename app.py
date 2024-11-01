@@ -13,9 +13,9 @@ logger = logging.getLogger(__name__)
 def main():
 
     logger.info("Starting Streamlit app")
-    
+
     render_title_and_logo()
-    
+
     if "chat_history" not in st.session_state:
         st.session_state.chat_history = []
 
@@ -29,6 +29,7 @@ def main():
         #     ingest_docs()
         #     st.session_state.ingestion_done = True
         login_interface()
+
 
 if __name__ == "__main__":
     main()
