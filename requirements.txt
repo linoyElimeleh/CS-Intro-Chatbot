@@ -14,3 +14,5 @@ python-pptx
 pinecone-client
 pygments
 extra-streamlit-components
+firebase-admin
+firebase

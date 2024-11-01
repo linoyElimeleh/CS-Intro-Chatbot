@@ -2,8 +2,9 @@ import logging
 import streamlit as st
 from backend.core import run_llm
 from views.header import render_header
+from views.login import get_user_email
 from views.sidebar import sidebar_view
-from utils import is_user_logged_in, get_user_email, save_chat_history
+from utils import save_chat_history
 
 logger = logging.getLogger(__name__)
 
@@ -14,24 +15,12 @@ def chat_interface():
     load_css()
     render_header()
 
-    if not check_user_login():
-        return
-
     user_email = get_user_email()
 
     sidebar_view(user_email)
     display_main_chat_area()
 
     handle_user_input(user_email)
-
-
-def check_user_login():
-    if not is_user_logged_in():
-        logger.info("User is not logged in")
-        st.rerun()  # Rerun Streamlit app if user is not logged in
-        return False
-    logger.info("User is logged in")
-    return True
 
 
 def load_css():

@@ -1,5 +1,6 @@
 import streamlit as st
-from utils import load_chat_history, logout_user, save_chat_history
+from utils import load_chat_history, save_chat_history
+from views.login import logout_user
 import logging
 
 from views.chat_history import initialize_chat_history
@@ -38,7 +39,7 @@ def sidebar_view(user_email):
         st.sidebar.markdown("""
 **© 2024 All rights reserved To Linoy Gabay.**
 
-To report issues, please contact: [Linoy Gabay](mailto:lino1998y@gmail.com)
+Did you find a bug? [Report Issues](mailto:lino1998y@gmail.com)
 """)
 
 
