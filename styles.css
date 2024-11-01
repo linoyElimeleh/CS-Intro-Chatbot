@@ -21,9 +21,9 @@
 
 .header-title {
     font-size: 1.4rem; 
-    font-family: 'Arial', sans-serif; 
+    font-family: 'Open Sans'; 
     font-weight: bold; 
-    color: #333; 
+    color: #033b8f; 
     margin: 0; /
 }
 
@@ -56,11 +56,27 @@
 
 .chat-message.ai {
     background-color: #ffebee;  /* Light pink for AI messages */
+    padding-left: 40px;  /* Space for the icon */
+    position: relative;  /* Necessary for positioning the pseudo-element */
+}
+
+.chat-message.ai::before {
+    content: "";
+    display: inline-block;
+    background-image: url("data:image/png;base64,{{REICHMAN_LOGO_BASE64}}"); /* Replace with dynamic base64 */
+    background-size: cover;
+    width: 30px;
+    height: 30px;
+    position: absolute;
+    left: 10px;  /* Position the icon inside the padding space */
+    top: 50%;
+    transform: translateY(-50%);  /* Center vertically */
+    border-radius: 50%;
 }
 
 /* Style for the source sections */
 .source-section {
-    font-size: 14px;
+    font-size: 12px;
     margin-top: 5px;
 }
 

@@ -47,26 +47,32 @@ def run_llm(query: str, chat_history: List[Dict[str, str]], user_email: str):
 
     if "I can't find specific information about that in the course materials" in result["answer"]:
         chatgpt_response = get_chatgpt_response(query)
-        result["answer"] = f"I couldn't find answers to your question in our course materials. However, here's a general answer from ChatGPT:\n\n{chatgpt_response}. \n\nPlease rephrase your question or try a different one."
+        result["answer"] = f"I couldn't find answers to your question in our course materials. However, here's a general answer from ChatGPT:\n\n{
+            chatgpt_response}. \n\nPlease rephrase your question or try a different one."
         result["source_documents"] = []
-    
+
     return {
         "result": result["answer"],
         "source_documents": result["source_documents"],
         "chat_history": chat_history + [{"role": "human", "content": query}, {"role": "ai", "content": result["answer"]}],
     }
 
+
 def format_chat_history(chat_history):
-    formatted_history = [(msg['content'], '') for msg in chat_history if msg['role'] == 'human']
-    formatted_history += [(', ' + msg['content']) for msg in chat_history if msg['role'] == 'ai']
-    
+    formatted_history = [(msg['content'], '')
+                         for msg in chat_history if msg['role'] == 'human']
+    formatted_history += [(', ' + msg['content'])
+                          for msg in chat_history if msg['role'] == 'ai']
+
     paired_history = []
     for i in range(0, len(formatted_history), 2):
         if i+1 < len(formatted_history):
-            paired_history.append((formatted_history[i][0], formatted_history[i+1][0]))
+            paired_history.append(
+                (formatted_history[i][0], formatted_history[i+1][0]))
         else:
             paired_history.append((formatted_history[i][0], ''))
     return paired_history
+
 
 def get_chatgpt_response(query: str) -> str:
     custom_prompt = (
@@ -76,15 +82,16 @@ def get_chatgpt_response(query: str) -> str:
 
     llm = ChatOpenAI(
         model_name="gpt-3.5-turbo",
-        temperature=0.7,  
-        max_tokens=500  
+        temperature=0.7,
+        max_tokens=500
     )
 
-    response = llm.generate([custom_prompt]) 
+    response = llm.generate([custom_prompt])
 
     return response.generations[0][0].text
 
 
 if __name__ == "__main__":
-    res = run_llm(query="What is a LangChain Chain?", chat_history=[], user_email="")
+    res = run_llm(query="What is a LangChain Chain?",
+                  chat_history=[], user_email="")
     print(res["result"])
