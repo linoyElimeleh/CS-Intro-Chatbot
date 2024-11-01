@@ -12,7 +12,7 @@ try:
     get_app()
 except ValueError:
     # If not, initialize it
-    cred = credentials.Certificate(os.getenv("FIREBASE_CREDENTIALS"))
+    cred = credentials.Certificate(os.getenv("FIREBASE_CONFIG"))
     logger.info(f"Using credentials: {cred}")
     initialize_app(cred)
 
