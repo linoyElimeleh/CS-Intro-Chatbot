@@ -61,7 +61,7 @@ def handle_user_input(user_email):
 
     if prompt := st.chat_input("Ask me anything about Introduction To Computer Science Course..."):
         save_user_question(user_email, prompt)
-        
+
         update_chat_title(current_chat, prompt)
         current_chat["messages"].append({"role": "human", "content": prompt})
         st.chat_message("human").write(prompt)
@@ -155,5 +155,6 @@ def save_user_question(user_email, question):
         "question": question,
         "timestamp": timestamp
     })
+
 
 __all__ = ['chat_interface']
