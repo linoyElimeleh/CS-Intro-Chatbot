@@ -4,7 +4,7 @@ from backend.core import run_llm
 from views.header import render_header
 from views.login import get_user_email
 from views.sidebar import sidebar_view
-from utils import save_chat_history
+from views.history import save_chat_history
 
 logger = logging.getLogger(__name__)
 

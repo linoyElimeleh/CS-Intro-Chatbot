@@ -1,9 +1,9 @@
 import streamlit as st
-from utils import load_chat_history, save_chat_history
+from views.history import load_chat_history, save_chat_history
 from views.login import logout_user
 import logging
 
-from views.chat_history import initialize_chat_history
+from views.history import initialize_chat_history
 
 logger = logging.getLogger(__name__)
 
