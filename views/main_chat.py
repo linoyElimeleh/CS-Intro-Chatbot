@@ -5,7 +5,10 @@ from views.header import render_header
 from views.login import get_user_email
 from views.sidebar import sidebar_view
 from views.history import save_chat_history
+from firebase_admin import firestore
+import datetime
 
+db = firestore.client()
 logger = logging.getLogger(__name__)
 
 
@@ -57,6 +60,8 @@ def handle_user_input(user_email):
     current_chat = get_current_chat()
 
     if prompt := st.chat_input("Ask me anything about Introduction To Computer Science Course..."):
+        save_user_question(user_email, prompt)
+        
         update_chat_title(current_chat, prompt)
         current_chat["messages"].append({"role": "human", "content": prompt})
         st.chat_message("human").write(prompt)
@@ -139,5 +144,16 @@ def display_sources(response):
             st.markdown(
                 f"- **Source Location:** {source['metadata']['source']}")
 
+
+def save_user_question(user_email, question):
+    """
+    Saves the user's question to Firestore.
+    """
+    timestamp = datetime.datetime.utcnow()
+    db.collection("user_questions").add({
+        "user_email": user_email,
+        "question": question,
+        "timestamp": timestamp
+    })
 
 __all__ = ['chat_interface']
