@@ -5,11 +5,11 @@ from views.header import render_header
 import logging
 from firebase_admin import auth, credentials, initialize_app, get_app, firestore
 import datetime
-
+from dotenv import load_dotenv
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-
+load_dotenv()
 try:
     # Check if the default app is already initialized
     get_app()
@@ -81,7 +81,7 @@ def login_interface():
                 unsafe_allow_html=True)
 
     # st.title("Login")
-    email = st.text_input("University Email")
+    email = st.text_input("University Email (yourName@post.runi.ac.il)")
     # password = st.text_input("Password", type="password")
 
     if st.button("Login", key="login_button"):

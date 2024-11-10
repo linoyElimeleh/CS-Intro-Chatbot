@@ -25,7 +25,7 @@ def render_header():
         <div class="fixed-header">
             <div class="header-content">
                 <img src="data:image/png;base64,{img_base64}" class="header-image">
-                <h1 class="header-title">RunAI - Introduction To Computer Science Course ChatBot</h1>
+                <h1 class="header-title">RUNaI - Introduction To Computer Science Course ChatBot</h1>
             </div>
         </div>
         """,

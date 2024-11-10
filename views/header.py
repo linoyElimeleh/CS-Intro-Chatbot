@@ -17,7 +17,7 @@ def render_header():
         <div class="fixed-header">
             <div class="header-content">
                 <img src="data:image/png;base64,{reichman_logo_base64}" class="header-image">
-                <h1 class="header-title">RunAI - Introduction To Computer Science Course ChatBot</h1>
+                <h1 class="header-title">RUNaI - Introduction To Computer Science Course ChatBot</h1>
             </div>
         </div>
         """,
@@ -27,5 +27,5 @@ def render_header():
 
 def render_title_and_logo():
     st.set_page_config(
-        page_title="RunAI - Introduction To Computer Science Course ChatBot",
+        page_title="RUNaI - Introduction To Computer Science Course ChatBot",
         page_icon="images/ReichmanLogo.png")
