@@ -56,10 +56,14 @@ def load_chat_history(user_email):
         chat_history_json = doc.to_dict().get("history")
         # Cache in session state
         st.session_state[f'chat_history_{user_email}'] = chat_history_json
-        return json.loads(chat_history_json)
+        try:
+            return json.loads(chat_history_json)  # Ensure this returns a list of dicts
+        except json.JSONDecodeError:
+            # If there is an error in decoding, return an empty list as a fallback
+            return [{"title": "New Chat", "messages": []}]
 
     # If no history found, return an empty list
-    return []
+    return [{"title": "New Chat", "messages": []}]
 
 
 def clear_chat_history(user_email):

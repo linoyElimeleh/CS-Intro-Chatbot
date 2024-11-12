@@ -4,7 +4,7 @@ from backend.core import run_llm
 from views.header import render_header
 from views.login import get_user_email
 from views.sidebar import sidebar_view
-from views.history import save_chat_history
+from views.history import initialize_chat_history, load_chat_history, save_chat_history
 from firebase_admin import firestore
 import datetime
 
@@ -21,7 +21,7 @@ def chat_interface():
     user_email = get_user_email()
 
     sidebar_view(user_email)
-    display_main_chat_area()
+    display_main_chat_area(user_email)
 
     handle_user_input(user_email)
 
@@ -31,8 +31,8 @@ def load_css():
         st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
 
 
-def display_main_chat_area():
-    current_chat = get_current_chat()
+def display_main_chat_area(user_email):
+    current_chat = get_current_chat(user_email)
 
     for message in current_chat["messages"]:
         with st.chat_message(message["role"]):
@@ -46,10 +46,14 @@ def display_main_chat_area():
                     st.write("No sources available.")
 
 
-def get_current_chat():
+def get_current_chat(user_email):
+    # Ensure chat history is initialized for the current user
+    initialize_chat_history(load_chat_history(user_email))
+    
     if 0 <= st.session_state.current_chat < len(st.session_state.chat_history):
         return st.session_state.chat_history[st.session_state.current_chat]
     else:
+        # Create a new chat if no current chat is set or valid
         new_chat = {"title": "New Chat", "messages": []}
         st.session_state.chat_history.append(new_chat)
         st.session_state.current_chat = len(st.session_state.chat_history) - 1
@@ -57,7 +61,7 @@ def get_current_chat():
 
 
 def handle_user_input(user_email):
-    current_chat = get_current_chat()
+    current_chat = get_current_chat(user_email)
 
     if prompt := st.chat_input("Ask me anything about Introduction To Computer Science Course..."):
         save_user_question(user_email, prompt)
