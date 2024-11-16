@@ -25,6 +25,7 @@ streamlit = "*"
 streamlit-chat = "*"
 pillow = "*"
 python-pptx = "*"
+firestore = "*"
 
 [dev-packages]
 
