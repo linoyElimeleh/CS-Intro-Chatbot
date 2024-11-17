@@ -9,7 +9,8 @@ from dotenv import load_dotenv
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-load_dotenv()
+load_dotenv(override=True)
+
 try:
     # Check if the default app is already initialized
     get_app()
