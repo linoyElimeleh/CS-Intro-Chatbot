@@ -10,11 +10,11 @@ COPY . /app
 # Install any needed packages specified in requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Make port 8501 available to the world outside this container
-EXPOSE 8501
+# Make port 8080 available to the world outside this container
+EXPOSE 8080
 
-# Define environment variable
+# Define environment variable indicating the name
 ENV NAME World
 
-# Run the application
-CMD ["streamlit", "run", "app.py", "--server.port", "8000", "--server.address", "0.0.0.0"]
+# Run the application, using the PORT environment variable
+CMD ["streamlit", "run", "app.py", "--server.port", "8080", "--server.address", "0.0.0.0"]
