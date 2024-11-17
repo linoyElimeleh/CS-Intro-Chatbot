@@ -17,4 +17,4 @@ EXPOSE 8501
 ENV NAME World
 
 # Run the application
-CMD ["streamlit", "run", "app.py", "--server.port=8000", "--server.address=0.0.0.0"]
+CMD ["streamlit", "run", "app.py", "--server.port", "8000", "--server.address", "0.0.0.0"]
