@@ -44,13 +44,16 @@ def run_llm(query: str, chat_history: List[Dict[str, str]], user_email: str):
     paired_history = format_chat_history(chat_history)
 
     result = qa({"question": query, "chat_history": paired_history})
-
+   
     if "I can't find specific information about that in the course materials" in result["answer"]:
         chatgpt_response = get_chatgpt_response(query)
-        result["answer"] = f"I couldn't find answers to your question in our course materials. However, here's a general answer from ChatGPT:\n\n{
-            chatgpt_response}. \n\nPlease rephrase your question or try a different one."
-        result["source_documents"] = []
+        result["answer"] = f"""I couldn't find answers to your question in our course materials. However, here's a general answer from ChatGPT:
+    
+{chatgpt_response}. 
 
+Please rephrase your question or try a different one."""
+        result["source_documents"] = []
+        
     return {
         "result": result["answer"],
         "source_documents": result["source_documents"],
