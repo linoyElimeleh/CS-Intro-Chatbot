@@ -8,13 +8,40 @@ steps:
   id: "Push Docker image to Google Container Registry"
 
 - name: 'gcr.io/cloud-builders/gcloud'
-  args: [
-    'run', 'deploy', 'app', 
-    '--image', 'gcr.io/$PROJECT_ID/app',
-    '--region', 'us-central1',
-    '--platform', 'managed',
-    '--set-env-vars', 'VARIABLE_NAME_1=value1,VARIABLE_NAME_2=value2'
-  ]
+  entrypoint: '/bin/bash'
+  args:
+  - '-c'
+  - |
+    FIREBASE_CLIENT_EMAIL=$(gcloud secrets versions access latest --secret=FIREBASE_CLIENT_EMAIL)
+    FIREBASE_CLIENT_ID=$(gcloud secrets versions access latest --secret=FIREBASE_CLIENT_ID)
+    FIREBASE_CONFIG=$(gcloud secrets versions access latest --secret=FIREBASE_CONFIG)
+    FIREBASE_PRIVATE_KEY=$(gcloud secrets versions access latest --secret=FIREBASE_PRIVATE_KEY)
+    FIREBASE_PRIVATE_KEY_ID=$(gcloud secrets versions access latest --secret=FIREBASE_PRIVATE_KEY_ID)
+    LANGCHAIN_API_KEY=$(gcloud secrets versions access latest --secret=LANGCHAIN_API_KEY)
+    LANGCHAIN_ENDPOINT=$(gcloud secrets versions access latest --secret=LANGCHAIN_ENDPOINT)
+    LANGCHAIN_TRACING_V2=$(gcloud secrets versions access latest --secret=LANGCHAIN_TRACING_V2)
+    OPENAI_API_KEY=$(gcloud secrets versions access latest --secret=OPENAI_API_KEY)
+    PINECONE_API_KEY=$(gcloud secrets versions access latest --secret=PINECONE_API_KEY)
+    PINECONE_ENVIRONMENT_REGION=$(gcloud secrets versions access latest --secret=PINECONE_ENVIRONMENT_REGION)
+    PINECONE_INDEX_NAME=$(gcloud secrets versions access latest --secret=PINECONE_INDEX_NAME)
+    
+    gcloud run deploy app \
+      --image gcr.io/$PROJECT_ID/app \
+      --region us-central1 \
+      --platform managed \
+      --allow-unauthenticated \
+      --set-env-vars FIREBASE_CLIENT_EMAIL=$FIREBASE_CLIENT_EMAIL \
+      --set-env-vars FIREBASE_CLIENT_ID=$FIREBASE_CLIENT_ID \
+      --set-env-vars FIREBASE_CONFIG=$FIREBASE_CONFIG \
+      --set-env-vars FIREBASE_PRIVATE_KEY="$FIREBASE_PRIVATE_KEY" \
+      --set-env-vars FIREBASE_PRIVATE_KEY_ID=$FIREBASE_PRIVATE_KEY_ID \
+      --set-env-vars LANGCHAIN_API_KEY=$LANGCHAIN_API_KEY \
+      --set-env-vars LANGCHAIN_ENDPOINT=$LANGCHAIN_ENDPOINT \
+      --set-env-vars LANGCHAIN_TRACING_V2=$LANGCHAIN_TRACING_V2 \
+      --set-env-vars OPENAI_API_KEY=$OPENAI_API_KEY \
+      --set-env-vars PINECONE_API_KEY=$PINECONE_API_KEY \
+      --set-env-vars PINECONE_ENVIRONMENT_REGION=$PINECONE_ENVIRONMENT_REGION \
+      --set-env-vars PINECONE_INDEX_NAME=$PINECONE_INDEX_NAME
   id: "Deploy to Cloud Run"
 
 images:
