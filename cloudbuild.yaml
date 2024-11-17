@@ -1,12 +1,8 @@
 steps:
-- name: 'gcr.io/cloud-builders/gcloud'
-  args: ['app', 'deploy']
-steps:
 - name: 'gcr.io/cloud-builders/docker'
-  args: ['build', '-t', 'gcr.io/cs-intro-chatbot/app', '.']
+  args: ['build', '-t', 'gcr.io/$PROJECT_ID/app', '.']
 images:
-- 'gcr.io/cs-intro-chatbot/app'
+- 'gcr.io/$PROJECT_ID/app'
 steps:
-- name: "gcr.io/cloud-builders/gcloud"
-  args: ['run', 'deploy', 'app', '--image', 'gcr.io/cs-intro-chatbot/app', '--region', 'us-central1', '--platform', 'managed']
-  args: ['run', 'deploy', 'app', '--image', 'gcr.io/cs-intro-chatbot/app', '--region', 'us-central1', '--platform', 'managed']
+- name: 'gcr.io/cloud-builders/gcloud'
+  args: ['run', 'deploy', 'app', '--image', 'gcr.io/$PROJECT_ID/app', '--region', 'us-central1', '--platform', 'managed']
