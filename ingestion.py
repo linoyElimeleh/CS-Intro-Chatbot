@@ -33,7 +33,7 @@ def ingest_docs():
     except Exception as e:
         logger.error(f"Error during document ingestion: {str(e)}")
 
-    base_path = "intro-to-cs-public/lectures"
+    base_path = "intro-to-cs-public"
     documents = []
 
     logger.info(f"Start ingesting docs from {base_path}")

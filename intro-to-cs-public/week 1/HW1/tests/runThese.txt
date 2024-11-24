@@ -1,0 +1,19 @@
+java Bill3 a b c 239 | java Test_Bill3 239 >> test.txt
+java Bill3 a b c 1870 | java Test_Bill3 1870 >> test.txt
+java Bill3 a b c 512 | java Test_Bill3 512 >> test.txt
+
+java FVCalc 250000 6 25 | java Test_FVCalc 250000 6 25 >> test.txt
+java FVCalc 210 5 30 | java Test_FVCalc 210 5 30 >> test.txt
+java FVCalc 20 30 32 | java Test_FVCalc 20 30 32 >> test.txt
+
+java NumWords 51422 | java Test_NumWords 51422 >> test.txt
+java NumWords 36 | java Test_NumWords 36 >> test.txt
+java NumWords 8 | java Test_NumWords 8 >> test.txt
+
+java TimeFormat 00:00 | java Test_TimeFormat 00:00 >> test.txt
+java TimeFormat 22:02 | java Test_TimeFormat 22:02 >> test.txt
+java TimeFormat 17:08 | java Test_TimeFormat 17:08 >> test.txt
+
+java Ascend 3500 | java Test_Ascend 3500 >> test.txt
+java Ascend 100 | java Test_Ascend 100 >> test.txt
+java Ascend 3 | java Test_Ascend 3 >> test.txt

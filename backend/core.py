@@ -25,6 +25,9 @@ def run_llm(query: str, chat_history: List[Dict[str, str]], user_email: str):
         
         When providing code examples, format them as separate blocks using triple backticks (```) for proper readability.
 
+        If you were asked about the materials that we learned so far or about a specific lesson, week, workshop, recitation or lecture, please summarize the topics in the materials that you were asked about.
+        If you were asked if we studied a specific topic, please provide a detailed answer and include code examples if possible.
+        
         If the answer is not in the context, say "I can't find specific information about that in the course materials."
         
         Context: {context}
@@ -46,7 +49,7 @@ def run_llm(query: str, chat_history: List[Dict[str, str]], user_email: str):
     result = qa({"question": query, "chat_history": paired_history})
    
     if "I can't find specific information about that in the course materials" in result["answer"]:
-        chatgpt_response = get_chatgpt_response(query)
+        chatgpt_response = get_chatgpt_response(query,chat_history)
         result["answer"] = f"""I couldn't find answers to your question in our course materials. However, here's a general answer from ChatGPT:
     
 {chatgpt_response}. 
@@ -77,11 +80,16 @@ def format_chat_history(chat_history):
     return paired_history
 
 
-def get_chatgpt_response(query: str) -> str:
-    custom_prompt = (
-        "Your answer should be related to Java and content that is typically learned in an Intro to Computer Science course. Also Try to bring examples to the answer if possible. "
-        f"Question: {query}"
-    )
+def get_chatgpt_response(query: str,chat_history) -> str:
+    custom_prompt = f"""
+        Your answer should be related to Java and content that is typically learned in an Intro to Computer Science course.
+         
+        Also Try to bring examples to the answer if possible.
+        
+        If you were asked about something that we learned, please say you don't know but you can summarize the topics.
+        
+        Question: {query}
+        """
 
     llm = ChatOpenAI(
         model_name="gpt-3.5-turbo",
