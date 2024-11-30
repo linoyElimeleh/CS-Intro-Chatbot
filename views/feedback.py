@@ -36,8 +36,6 @@ def display_feedback_panel(question, answer, user_email):
 
     # Add Like/Dislike buttons
     st.markdown("#### Did the answer help you?")
-    logger.info(f"displaying feedback panel for question: {
-                question} and answer: {answer}")
 
     col1, col2 = st.columns(2)
     with col1:
