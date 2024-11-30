@@ -1,6 +1,7 @@
 import logging
 import streamlit as st
 from backend.core import run_llm
+from views.feedback import display_feedback_panel
 from views.header import render_header
 from views.login import get_user_email
 from views.sidebar import sidebar_view
@@ -10,6 +11,7 @@ import datetime
 
 db = firestore.client()
 logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
 
 
 def chat_interface():
@@ -49,7 +51,7 @@ def display_main_chat_area(user_email):
 def get_current_chat(user_email):
     # Ensure chat history is initialized for the current user
     initialize_chat_history(load_chat_history(user_email))
-    
+
     if 0 <= st.session_state.current_chat < len(st.session_state.chat_history):
         return st.session_state.chat_history[st.session_state.current_chat]
     else:
@@ -81,7 +83,7 @@ def handle_user_input(user_email):
         ]
         response["sources"] = serializable_sources
 
-        display_ai_response(response)
+        display_ai_response(response, user_email, prompt)
 
         ai_message = {
             "role": "ai",
@@ -103,13 +105,13 @@ def get_ai_response(prompt, messages, user_email):
         return run_llm(prompt, messages, user_email)
 
 
-def display_ai_response(response):
-
+def display_ai_response(response, user_email, prompt):
+    result = response["result"]
     ai_message = st.chat_message("ai")
 
-    if "```" in response["result"]:
+    if "```" in result:
         # Split the response by code sections
-        parts = response["result"].split("```")
+        parts = result.split("```")
         for i, part in enumerate(parts):
             if i % 2 == 0:
                 # Display normal text
@@ -119,11 +121,13 @@ def display_ai_response(response):
                 ai_message.code(part.strip(), language="java")
     else:
         # Display the entire response as text if no code blocks are detected
-        ai_message.write(response["result"])
+        ai_message.write(result)
 
     # Display sources if available
     if response.get("sources"):
         display_sources(response)
+
+    display_feedback_panel(prompt, result, user_email)
 
 
 def display_sources(response):
@@ -159,6 +163,7 @@ def save_user_question(user_email, question):
         "question": question,
         "timestamp": timestamp
     })
+    logger.info(f"User question saved: {question}")
 
 
 __all__ = ['chat_interface']
