@@ -1,0 +1,4 @@
+java Test_Algebra >> test.txt
+java Test_Anagram >> test.txt
+
+
