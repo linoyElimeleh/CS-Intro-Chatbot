@@ -1,34 +1,18 @@
-import json
-import os
 import streamlit as st
+from backend.firebase import get_firebase_client
 from views.header import render_header
 import logging
-from firebase_admin import auth, credentials, initialize_app, get_app, firestore
+from firebase_admin import auth
 import datetime
 from dotenv import load_dotenv
+
+from views.history import initialize_chat_history, load_chat_history, save_chat_history
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 load_dotenv(override=True)
 
-try:
-    # Check if the default app is already initialized
-    get_app()
-except ValueError:
-    # If not, initialize it
-    with open(os.getenv("FIREBASE_CONFIG")) as f:
-        firebase_config = json.load(f)
-    firebase_config["private_key"] = os.getenv(
-        "FIREBASE_PRIVATE_KEY").replace("\\n", "\n")
-    firebase_config["client_email"] = os.getenv("FIREBASE_CLIENT_EMAIL")
-    firebase_config["client_id"] = os.getenv("FIREBASE_CLIENT_ID")
-    firebase_config["private_key_id"] = os.getenv("FIREBASE_PRIVATE_KEY_ID")
-
-    cred = credentials.Certificate(firebase_config)
-    logger.info(f"Using credentials: {cred}")
-    initialize_app(cred)
-
-db = firestore.client()
+db = get_firebase_client()
 
 
 def is_user_logged_in():
@@ -45,13 +29,23 @@ def log_sign_in_event(user_id, email):
 
 
 def authenticate_user(email):
+    st.session_state.clear()
+    
     try:
         user = auth.get_user_by_email(email)
         st.session_state.user_id = user.uid
         st.session_state.user_email = email
         st.session_state.logged_in = True
+
+        loaded_history = load_chat_history(email)
+        initialize_chat_history(loaded_history)
+
+        if len(st.session_state.chat_history) ==0 or "current_chat" not in st.session_state:
+            add_new_chat(email)
+
         logger.info(f"User {email} authenticated successfully.")
         log_sign_in_event(user.uid, email)
+
         # analytics.log_event(
         #     "user_sign_in",
         #     {"email": email}
@@ -111,3 +105,19 @@ def load_css():
 
 def get_user_email():
     return st.session_state.get('user_email')
+
+
+def add_new_chat(user_email):
+    """Create a new chat and set it as the current chat."""
+    new_chat = {"title": "New Chat", "messages": []}
+
+    # Ensure chat history exists
+    if "chat_history" not in st.session_state:
+        st.session_state.chat_history = []
+
+    # Add the new chat and set it as current
+    st.session_state.chat_history.append(new_chat)
+    st.session_state.current_chat = len(st.session_state.chat_history) - 1
+
+    # Save the updated chat history to Firestore
+    save_chat_history(user_email, st.session_state.chat_history)

@@ -49,17 +49,11 @@ def display_main_chat_area(user_email):
 
 
 def get_current_chat(user_email):
-    # Ensure chat history is initialized for the current user
-    initialize_chat_history(load_chat_history(user_email))
-
-    if 0 <= st.session_state.current_chat < len(st.session_state.chat_history):
+    if "current_chat" in st.session_state and 0 <= st.session_state.current_chat < len(st.session_state.chat_history):
         return st.session_state.chat_history[st.session_state.current_chat]
     else:
-        # Create a new chat if no current chat is set or valid
-        new_chat = {"title": "New Chat", "messages": []}
-        st.session_state.chat_history.append(new_chat)
-        st.session_state.current_chat = len(st.session_state.chat_history) - 1
-        return new_chat
+        add_new_chat(user_email)
+        return st.session_state.chat_history[st.session_state.current_chat]
 
 
 def handle_user_input(user_email):
@@ -164,6 +158,22 @@ def save_user_question(user_email, question):
         "timestamp": timestamp
     })
     logger.info(f"User question saved: {question}")
+
+
+def add_new_chat(user_email):
+    """Create a new chat and set it as the current chat."""
+    new_chat = {"title": "New Chat", "messages": []}
+
+    # Ensure chat history exists
+    if "chat_history" not in st.session_state:
+        st.session_state.chat_history = []
+
+    # Add the new chat and set it as current
+    st.session_state.chat_history.append(new_chat)
+    st.session_state.current_chat = len(st.session_state.chat_history) - 1
+
+    # Save the updated chat history to Firestore
+    save_chat_history(user_email, st.session_state.chat_history)
 
 
 __all__ = ['chat_interface']
