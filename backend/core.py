@@ -43,7 +43,7 @@ If the answer is not in the context, respond: "I can't find specific information
     )
 
     qa = ConversationalRetrievalChain.from_llm(
-        llm=ChatOpenAI(temperature=0, model_name="gpt-4"),
+        llm=ChatOpenAI(temperature=0, model_name="gpt-4o"),
         retriever=vectorstore.as_retriever(search_kwargs={"k": 3}),
         return_source_documents=True,
         combine_docs_chain_kwargs={"prompt": custom_prompt}
@@ -101,7 +101,7 @@ def get_chatgpt_response(query: str, chat_history) -> str:
     )
 
     llm = ChatOpenAI(
-        model_name="gpt-4",
+        model_name="gpt-4o",
         temperature=0.7,
         max_tokens=500
     )
