@@ -8,6 +8,7 @@ from views.sidebar import sidebar_view
 from views.history import initialize_chat_history, load_chat_history, save_chat_history
 from firebase_admin import firestore
 import datetime
+import openai
 
 db = firestore.client()
 logger = logging.getLogger(__name__)
@@ -96,7 +97,13 @@ def update_chat_title(chat, prompt):
 
 def get_ai_response(prompt, messages, user_email):
     with st.spinner("Thinking..."):
-        return run_llm(prompt, messages, user_email)
+        try:
+            return run_llm(prompt, messages, user_email)
+        except openai.BadRequestError as e:
+            if "context_length_exceeded" in str(e):
+                st.error("Your request is too long. Please shorten your question or reduce the chat history.")
+            else:
+                st.error("An error occurred while processing your request.")
 
 
 def display_ai_response(response, user_email, prompt):

@@ -9,7 +9,7 @@ import os
 load_dotenv()
 
 
-def run_llm(query: str, chat_history: List[Dict[str, str]], user_email: str):
+def run_llm(query: str, chat_history: List[Dict[str, str]], user_email: str, max_history_length: int = 10):
     embeddings = OpenAIEmbeddings(model="text-embedding-ada-002")
     vectorstore = PineconeVectorStore.from_existing_index(
         index_name=os.getenv("PINECONE_INDEX_NAME"), embedding=embeddings
@@ -49,11 +49,22 @@ Focus on extracting **specific details** relevant to the question from the provi
         combine_docs_chain_kwargs={"prompt": custom_prompt}
     )
 
+    # Limit chat history to the last N messages
+    if len(chat_history) > max_history_length:
+        chat_history = chat_history[-max_history_length:]
+
     # Format chat history
     paired_history = format_chat_history(chat_history)
 
-    result = qa({"question": query, "chat_history": paired_history})
-   
+    try:
+        result = qa({"question": query, "chat_history": paired_history})
+    except Exception as e:
+        return {
+            "result": "An error occurred while processing your request.",
+            "source_documents": [],
+            "chat_history": chat_history,
+        }
+
     if "I can't find specific information about that in the course materials" in result["answer"]:
         chatgpt_response = get_chatgpt_response(query, chat_history)
         result["answer"] = f"""I couldn't find answers to your question in the course materials. Here's a general explanation from ChatGPT:
