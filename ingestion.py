@@ -23,7 +23,7 @@ from langchain_pinecone import PineconeVectorStore
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
-embeddings = OpenAIEmbeddings(model="text-embedding-3-small")
+embeddings = OpenAIEmbeddings(model="text-embedding-ada-002")
 
 
 # Translate the data into Pinecone

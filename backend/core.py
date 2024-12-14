@@ -18,16 +18,16 @@ def run_llm(query: str, chat_history: List[Dict[str, str]], user_email: str):
     custom_prompt = PromptTemplate(
         input_variables=["context", "question", "chat_history"],
         template="""You are an AI assistant for the "Introduction to Computer Science in Java langauge" course. 
-Use the provided course materials to answer the question clearly and concisely. 
+Use the provided course materials (DB context) to answer the question clearly and concisely. 
 
 ### Guidelines:
-1. If the user's question is unclear, infer similar or related questions and answer accordingly.
+1. Search specifically for the lecture number, week, or topic mentioned in the question within the provided DB context or metadata for example for question like "what did we learned in week 1?" You will give a summery / topics from the files the name contains "week 1".
 2. If the question involves code, provide examples formatted with triple backticks (```).
-3. If the question relates to course topics, summarize the relevant topics.
-4. If the question asks about String function, you can use similiar words as operation for example.
+3. If the question is unclear, infer related questions based on the context and answer accordingly.
+4. If no relevant match is found in the context, respond: "I can't find specific information about that in the course materials."
 
 ### Important:
-If the answer is not in the context, respond: "I can't find specific information about that in the course materials."
+Focus on extracting **specific details** relevant to the question from the provided DB context or file metadata.
 
 ### Provided Context:
 {context}
@@ -43,7 +43,7 @@ If the answer is not in the context, respond: "I can't find specific information
     )
 
     qa = ConversationalRetrievalChain.from_llm(
-        llm=ChatOpenAI(temperature=0, model_name="gpt-4o"),
+        llm=ChatOpenAI(temperature=0.7, model_name="gpt-4"),
         retriever=vectorstore.as_retriever(search_kwargs={"k": 3}),
         return_source_documents=True,
         combine_docs_chain_kwargs={"prompt": custom_prompt}
@@ -101,7 +101,7 @@ def get_chatgpt_response(query: str, chat_history) -> str:
     )
 
     llm = ChatOpenAI(
-        model_name="gpt-4o",
+        model_name="gpt-4",
         temperature=0.7,
         max_tokens=500
     )

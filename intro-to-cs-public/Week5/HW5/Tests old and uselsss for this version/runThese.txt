@@ -1,0 +1,27 @@
+java MyString_Tests subsetOf hello hell >> test.txt
+java MyString_Tests subsetOf hello help >> test.txt
+java MyString_Tests subsetOf hel hell >> test.txt
+java MyString_Tests subsetOf jello ole >> test.txt
+
+java MyString_Tests spacedString yep >> test.txt
+java MyString_Tests spacedString aeiou >> test.txt
+java MyString_Tests spacedString silent >> test.txt
+
+java MyString_Tests randomStringOfLetters 7 >> test.txt
+java MyString_Tests randomStringOfLetters 50 >> test.txt
+java MyString_Tests randomStringOfLetters 1 >> test.txt
+
+java MyString_Tests remove committee meet >> test.txt
+java MyString_Tests remove tim i >> test.txt
+java MyString_Tests remove belt "" >> test.txt
+
+java MyString_Tests countChar committee e >> test.txt
+java MyString_Tests countChar committee i >> test.txt
+java MyString_Tests countChar committee l >> test.txt
+
+java MyString_Tests getWordScore meet 10  >> test.txt
+java MyString_Tests getWordScore meet 4  >> test.txt
+java MyString_Tests getWordScore slip 10 >> test.txt
+java MyString_Tests getWordScore sllips 6 >> test.txt
+
+
