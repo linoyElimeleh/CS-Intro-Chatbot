@@ -1,0 +1,13 @@
+// Reads a number x and writes M[x].
+800  // reads the first value, 300
+405  // and stored it in xxx
+800  // reads the second number, 
+105  // adds 300 to it,
+405  // and stores it at address 05
+// The next command, which is at address 05, is 
+// the command that the previous commands built.
+// The 111 is just a place holder, which is no
+// longer 111.
+111  // executes the command...
+900  // writes the result
+000  // stop

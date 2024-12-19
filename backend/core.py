@@ -43,7 +43,7 @@ Focus on extracting **specific details** relevant to the question from the provi
     )
 
     qa = ConversationalRetrievalChain.from_llm(
-        llm=ChatOpenAI(temperature=0.7, model_name="gpt-4"),
+        llm=ChatOpenAI(temperature=0.7, model_name="chatgpt-4o-latest"),
         retriever=vectorstore.as_retriever(search_kwargs={"k": 3}),
         return_source_documents=True,
         combine_docs_chain_kwargs={"prompt": custom_prompt}
@@ -59,6 +59,7 @@ Focus on extracting **specific details** relevant to the question from the provi
     try:
         result = qa({"question": query, "chat_history": paired_history})
     except Exception as e:
+        print(f"Error: {e}")
         return {
             "result": "An error occurred while processing your request.",
             "source_documents": [],
@@ -112,7 +113,7 @@ def get_chatgpt_response(query: str, chat_history) -> str:
     )
 
     llm = ChatOpenAI(
-        model_name="gpt-4",
+        model_name="chatgpt-4o-latest",
         temperature=0.7,
         max_tokens=500
     )
